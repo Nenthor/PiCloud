@@ -50,7 +50,6 @@ export async function uploadFile(stream: ReadableStream<Uint8Array>, path: strin
         diskStream.end();
       },
       abort() {
-        diskStream.end();
         diskStream.destroy();
       }
     });

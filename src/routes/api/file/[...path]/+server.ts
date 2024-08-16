@@ -84,7 +84,6 @@ export const POST = (async ({ params, request }) => {
 
   const success = await uploadFile(request.body!, path, overwrite);
   if (!success) {
-    request.body!.cancel();
     return getResponse('error', 'Failed to upload file');
   }
 
