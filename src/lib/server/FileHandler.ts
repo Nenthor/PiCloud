@@ -38,35 +38,40 @@ export async function uploadFile(stream: ReadableStream<Uint8Array>, path: strin
   if (!overwrite && (await isValidPath(fullPath))) return false;
 
   // Write file to disk
-  const diskStream = createWriteStream(fullPath, { highWaterMark: 256 * 1024 });
-  diskStream.on('error', () => {});
+  try {
+    const diskStream = createWriteStream(fullPath, { highWaterMark: 256 * 1024 });
+    diskStream.on('error', () => {});
 
-  const writeableStream = new WritableStream<Uint8Array>({
-    write(chunk) {
-      diskStream.write(chunk);
-    },
-    close() {
-      diskStream.end();
-    },
-    abort() {
-      diskStream.end();
-      diskStream.destroy();
+    const writeableStream = new WritableStream<Uint8Array>({
+      write(chunk) {
+        diskStream.write(chunk);
+      },
+      close() {
+        diskStream.end();
+      },
+      abort() {
+        diskStream.end();
+        diskStream.destroy();
+      }
+    });
+
+    const success = await new Promise<boolean>((resolve) =>
+      stream
+        .pipeTo(writeableStream)
+        .then(() => resolve(true))
+        .catch(() => resolve(false))
+    );
+
+    // Cleanup
+    if (!success) {
+      await deleteFile(path);
     }
-  });
 
-  const success = await new Promise<boolean>((resolve) =>
-    stream
-      .pipeTo(writeableStream)
-      .then(() => resolve(true))
-      .catch(() => resolve(false))
-  );
-
-  // Cleanup
-  if (!success) {
-    await deleteFile(path);
+    return success;
+  } catch (error) {
+    console.error(error);
+    return false;
   }
-
-  return success;
 }
 
 export async function downloadFile(path: string[]) {
