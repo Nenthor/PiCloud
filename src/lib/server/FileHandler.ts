@@ -46,11 +46,9 @@ export async function uploadFile(stream: ReadableStream<Uint8Array>, path: strin
       diskStream.write(chunk);
     },
     close() {
-      console.log('Stream closed');
       diskStream.end();
     },
     abort() {
-      console.log('Stream aborted');
       diskStream.end();
       diskStream.destroy();
     }
