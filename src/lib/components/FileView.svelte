@@ -125,7 +125,7 @@
     background-color: white;
     border-radius: 0;
     height: 100%;
-    border-radius: 15px 15px 0 0;
+    border-radius: 0 5px 0 15px;
   }
 
   .next > button:hover {
@@ -173,13 +173,12 @@
     min-width: min-content;
     height: max(min-content, 300px);
     min-height: min-content;
-    max-height: 400px;
+    max-height: 100%;
     background-color: #646464;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
   }
 
   .frame > * {
@@ -268,7 +267,7 @@
     color: white;
   }
 
-  @media (max-width: 1100px) {
+  @media (max-width: 1600px) {
     .container {
       flex-direction: column;
       height: auto;

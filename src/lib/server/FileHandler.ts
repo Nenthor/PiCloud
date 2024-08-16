@@ -159,36 +159,43 @@ export async function getThumbnail(path: string[], width = 200, height = 200) {
   const thumbnail = thumbnails.get(fullPath);
   if (thumbnail) return thumbnail;
 
-  let input: string | Buffer = fullPath;
+  let input: string | Buffer | null = fullPath;
   if (isVideo(fullPath)) {
     // Get thumbnail from video as Buffer - (and hope it accepts the format)
-    input = await new Promise<Buffer>(async (resolve, reject) => {
-      const buffers: Buffer[] = [];
-      const duration = await getVideoDurationInSeconds(fullPath);
+    input = await new Promise<Buffer | null>(async (resolve) => {
+      try {
+        const buffers: Buffer[] = [];
+        const duration = await getVideoDurationInSeconds(fullPath);
 
-      const stream = new PassThrough();
-      stream.on('data', (chunk) => buffers.push(chunk));
-      stream.on('end', () => resolve(Buffer.concat(buffers)));
-      stream.on('error', (err) => {
-        console.error(err);
-        stream.end();
-        reject();
-      });
+        const stream = new PassThrough();
+        stream.on('data', (chunk) => buffers.push(chunk));
+        stream.on('end', () => resolve(Buffer.concat(buffers)));
+        stream.on('error', (err) => {
+          console.error(err);
+          stream.end();
+          resolve(null);
+        });
 
-      ffmpeg(fullPath)
-        .on('end', () => stream.end())
-        .on('error', (err) => {
-          if (!err.message.includes('Output stream closed')) {
-            console.error(err);
-            stream.end();
-          }
-        })
-        .seekInput(duration * 0.1) // Get thumbnail from 10% of the video
-        .format('image2pipe')
-        .frames(1)
-        .pipe(stream, { end: true });
+        ffmpeg(fullPath)
+          .on('end', () => stream.end())
+          .on('error', (err) => {
+            if (!err.message.includes('Output stream closed')) {
+              console.error(err);
+              stream.end();
+            }
+          })
+          .seekInput(duration * 0.1) // Get thumbnail from 10% of the video
+          .format('image2pipe')
+          .frames(1)
+          .pipe(stream, { end: true });
+      } catch (error) {
+        console.error(error);
+        resolve(null);
+      }
     });
   }
+
+  if (input === null) return null;
 
   try {
     sharp.cache(false); // Sharp keeps files open, which prevents them from being deleted/overwritten
