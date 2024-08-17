@@ -11,10 +11,10 @@
   export let folders: string[];
   export let files: string[];
 
-  const BASE_WIDTH = 120,
+  const BASE_WIDTH = 150,
     ZOOM_STEP = 30,
     MIN_WIDTH = BASE_WIDTH - ZOOM_STEP * 2,
-    MAX_WIDTH = BASE_WIDTH + ZOOM_STEP * 4;
+    MAX_WIDTH = BASE_WIDTH + ZOOM_STEP * 3;
 
   let width = BASE_WIDTH;
   let nonReadyFiles: string[] = [];
