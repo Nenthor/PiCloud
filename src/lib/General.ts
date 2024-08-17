@@ -6,7 +6,7 @@ export function getResponse(type: 'success' | 'error', message: string, status_c
   });
 }
 
-export function clipName(name: string, length = 25, reverse = false) {
+export function clipName(name: string, length = 50, reverse = false) {
   if (name.length <= length) return name;
   if (reverse) return '...' + name.slice(name.length - length + 3);
   else return name.slice(0, length - 3) + '...';
@@ -45,4 +45,8 @@ export function isPDF(file: string) {
   const extension = file.split('.').pop();
   if (!extension) return false;
   return pdfExtensions.includes(extension.toLowerCase());
+}
+
+export function isDefault(file: string) {
+  return !isVideo(file) && !isImage(file) && !isAudio(file) && !isZip(file) && !isPDF(file);
 }

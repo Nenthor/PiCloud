@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { clipName } from '$lib/General';
+  import { clipName, isDefault } from '$lib/General';
   import { getFullPath } from '$lib/Path';
 
   export let path: string[];
@@ -13,6 +13,10 @@
   function handleClick() {
     if (checkMode != 'none') handleCheck(name);
     else goto(getFullPath([...path, name])!);
+  }
+
+  function removeExtension(fileName: string) {
+    return isDefault(fileName) ? fileName : fileName.slice(0, fileName.lastIndexOf('.'));
   }
 </script>
 
@@ -30,7 +34,7 @@
       {/if}
       <slot />
     </div>
-    <p>{clipName(name)}</p>
+    <p>{clipName(removeExtension(name))}</p>
   </a>
 </li>
 
@@ -38,7 +42,6 @@
   li {
     display: flex;
     justify-content: center;
-
     text-align: center;
     padding: 5px;
   }
@@ -72,7 +75,7 @@
   li > a > p {
     color: #eee;
     max-width: 100%;
-    line-break: anywhere;
+    overflow-wrap: break-word;
   }
 
   .checkBox {

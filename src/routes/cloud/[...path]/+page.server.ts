@@ -18,8 +18,14 @@ export const load = (async ({ params }) => {
 
   const dirPath = stats.isDirectory() ? path : path.slice(0, -1);
   const content = await listDirectory(dirPath);
-  files = content.filter((file) => file.isFile()).map((file) => file.name);
-  folders = content.filter((file) => file.isDirectory()).map((file) => file.name);
+  files = content
+    .filter((file) => file.isFile())
+    .map((file) => file.name)
+    .sort();
+  folders = content
+    .filter((file) => file.isDirectory())
+    .map((file) => file.name)
+    .sort();
 
   creationDate = stats.birthtime.toLocaleDateString(undefined, {
     year: 'numeric',

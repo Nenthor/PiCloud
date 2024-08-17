@@ -11,9 +11,9 @@
   export let folders: string[];
   export let files: string[];
 
-  const BASE_WIDTH = 150,
+  const BASE_WIDTH = 170,
     ZOOM_STEP = 30,
-    MIN_WIDTH = BASE_WIDTH - ZOOM_STEP * 2,
+    MIN_WIDTH = BASE_WIDTH - ZOOM_STEP * 3,
     MAX_WIDTH = BASE_WIDTH + ZOOM_STEP * 3;
 
   let width = BASE_WIDTH;
