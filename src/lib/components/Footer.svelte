@@ -1,6 +1,6 @@
 <footer>
   <p>
-    <a href="https://github.com/Nenthor/EM-Betting">GitHub Projekt</a>
+    <a href="https://github.com/Nenthor/PiCloud">GitHub Projekt</a>
   </p>
 </footer>
 
