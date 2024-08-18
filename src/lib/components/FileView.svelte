@@ -3,17 +3,29 @@
   import ErrorMessage from '$lib/components/ErrorMessage.svelte';
   import { clipName, isAudio, isImage, isVideo } from '$lib/General.js';
   import { getFullPath, getParentPath, getPathStr } from '$lib/Path';
+  import { onMount } from 'svelte';
 
   export let path: string[];
   export let size: string;
   export let creationDate: string;
   export let files: string[];
 
+  const IMAGE_TIMEOUT = 5000; // 5 seconds
+
   let filename = '';
   let newName = '';
   let setErrorMessage: (msg: string, success?: boolean) => void;
+  let isAutoplay: boolean;
+  let videoHtml: HTMLVideoElement;
+  let imageAutoplayInterval: NodeJS.Timeout | null;
 
   $: filename = path[path.length - 1];
+
+  onMount(() => {
+    return () => {
+      if (imageAutoplayInterval) clearInterval(imageAutoplayInterval);
+    };
+  });
 
   async function onDelete() {
     const confirmDelete = confirm('Möchtest du die Datei wirklich löschen?');
@@ -61,7 +73,7 @@
     a.click();
   }
 
-  function onNextFile(direction: 'left' | 'right') {
+  function onNextFile(direction: 'left' | 'right', triggerdByAutoplay = false) {
     const currentFileIndex = files.indexOf(filename);
 
     let nextFileIndex = currentFileIndex + (direction === 'left' ? -1 : 1);
@@ -70,14 +82,43 @@
 
     const newPath = [...getParentPath(path), files[nextFileIndex]];
     goto(getFullPath(newPath)!);
+
+    // Reload video with new source
+    if (videoHtml) {
+      videoHtml.src = `/api/file/${getPathStr(newPath)}`;
+      videoHtml.load();
+      videoHtml.play();
+    }
+
+    // Reset autoplay interval
+    if (!triggerdByAutoplay) {
+      isAutoplay = false;
+      onAutoplayChange();
+    }
+  }
+
+  function onEnded() {
+    if (isAutoplay) onNextFile('right');
+  }
+
+  function onAutoplayChange() {
+    if (!isImage(filename)) return;
+
+    if (isAutoplay) {
+      imageAutoplayInterval = setInterval(() => {
+        onNextFile('right', true);
+      }, IMAGE_TIMEOUT);
+    } else if (imageAutoplayInterval) {
+      clearInterval(imageAutoplayInterval);
+    }
   }
 </script>
 
-<div class="container">
+<div class="container {isAudio(filename) ? 'audioContainer' : ''}">
   {#if isVideo(filename) || isAudio(filename) || isImage(filename)}
     <div class="frame">
       {#if isVideo(filename) || isAudio(filename)}
-        <video controls>
+        <video bind:this={videoHtml} on:ended={onEnded} class={isAudio(filename) ? 'audioVideo' : ''} controls autoplay>
           <source src="/api/file/{getPathStr(path)}" />
           <track kind="captions" src="/api/file/{getPathStr(path)}" />
           Dein Browser unterstützt dieses Videoformat nicht.
@@ -92,6 +133,12 @@
     <p class="title">{clipName(filename, 100)}</p>
     <p class="infos">{size} - {creationDate}</p>
     <div class="settings">
+      {#if isAudio(filename) || isVideo(filename) || isImage(filename)}
+        <div class="autoplay">
+          <input bind:checked={isAutoplay} on:change={onAutoplayChange} type="checkbox" id="autoplay" />
+          <label for="autoplay">Autoplay</label>
+        </div>
+      {/if}
       <div class="rename">
         <input type="text" placeholder="Neuer Name" bind:value={newName} />
         <button on:click={onRename}>Umbenennen</button>
@@ -112,6 +159,24 @@
 </div>
 
 <style>
+  .autoplay {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 15px;
+  }
+
+  .autoplay input {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+  }
+
+  .autoplay label {
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+
   .container {
     display: flex;
     flex-direction: row;
@@ -123,6 +188,26 @@
     min-height: 450px;
     gap: 15px;
     margin: 15px;
+  }
+
+  .audioContainer {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: auto;
+    min-height: auto;
+  }
+
+  .audioContainer .frame {
+    width: 100%;
+    height: calc(30vh - 75px - 20px);
+    flex: auto;
+    min-height: auto;
+    max-width: 750px;
+  }
+
+  .audioContainer .stats {
+    width: calc(100% - 20px);
+    max-width: 500px;
   }
 
   .frame {
@@ -137,10 +222,15 @@
 
   .frame video,
   .frame img {
+    aspect-ratio: attr(width) / attr(height);
     width: 100%;
-    height: 100%;
     border-radius: 15px;
     object-fit: contain;
+  }
+
+  video.audioVideo {
+    aspect-ratio: none;
+    height: 50px;
   }
 
   .stats {
@@ -168,6 +258,12 @@
       height: calc(80vh - 75px - 20px);
       flex: auto;
       min-height: auto;
+    }
+
+    .frame video,
+    .frame img {
+      max-width: 100%;
+      max-height: 100%;
     }
 
     .stats {

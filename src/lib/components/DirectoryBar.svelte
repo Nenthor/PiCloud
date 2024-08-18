@@ -53,7 +53,7 @@
 
 <div class="container">
   <div class="path">
-    <h1>{clipName('/' + getPathStr(path), 25, true)}</h1>
+    <h1>{clipName('/' + getPathStr(path), 50, true)}</h1>
   </div>
 
   <div class="actions">
@@ -114,7 +114,8 @@
     background-color: var(--primary-dark);
     border-radius: 5px;
     padding: 5px 15px;
-    min-width: min(calc(100% - 30px), 500px);
+    min-width: 50%;
+    width: fit-content;
     max-width: calc(100% - 30px);
     text-align: center;
     overflow-wrap: anywhere;

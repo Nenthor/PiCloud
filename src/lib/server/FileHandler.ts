@@ -13,7 +13,7 @@ import { BufferCache } from './BufferCache';
 // Check if ROOT_DIR is available
 fs.readdir(ROOT_DIR).catch((err) => console.error('ROOT_DIR not available:\n', err));
 
-const MAX_THUMBNAIL_SIZE = 10 * 1024 ** 2; // 10 MB
+const MAX_THUMBNAIL_SIZE = 64 * 1024 ** 2; // 64 MB
 const thumbnails = new BufferCache(MAX_THUMBNAIL_SIZE);
 const recentlyDeleted: string[] = [];
 
@@ -193,7 +193,7 @@ export async function getThumbnail(path: string[], width = 200, height = 200) {
           .frames(1)
           .pipe(stream, { end: true });
       } catch (error) {
-        console.error(error);
+        console.error('Error while creating video thumbnail');
         resolve(null);
       }
     });
