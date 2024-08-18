@@ -27,7 +27,7 @@ function isValidPath(path: string) {
   // use regex to check if the path is valid
   if (path === '') return true;
 
-  const regex = /^([\w\däöü\-() ]+\/)*([\w\däöü\-() ]+(\.[\w\däöü\-()]+)*)$/i;
+  const regex = /^([\w\däöü\-(), ]+\/)*([\w\däöü\-(), ]+(\.[\w\däöü\-()]+)*)$/i;
   return regex.test(path);
 }
 
