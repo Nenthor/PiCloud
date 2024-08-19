@@ -40,19 +40,21 @@ export const load = (async ({ params }) => {
     })
   );
 
-  promises.push(
-    getFolderSize(path).then((currentSize) => {
-      size.currentSize = sizeToString(currentSize);
-    })
-  );
-
   if (stats.isDirectory()) {
+    promises.push(
+      getFolderSize(path).then((currentSize) => {
+        size.currentSize = sizeToString(currentSize);
+      })
+    );
+
     promises.push(
       getFreeSize().then((freeSize) => {
         size.freeSize = sizeToString(freeSize);
         size.freeSizePercentage = getFreeSizePercentage(freeSize);
       })
     );
+  } else if (stats.isFile()) {
+    size.currentSize = sizeToString(stats.size);
   }
 
   await Promise.all(promises);
