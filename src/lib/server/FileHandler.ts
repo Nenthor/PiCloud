@@ -6,7 +6,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import { createReadStream, createWriteStream } from 'fs';
 import fs from 'fs/promises';
 import { getVideoDurationInSeconds } from 'get-video-duration';
-import { dirname, join } from 'path';
+import { dirname, isAbsolute, join, normalize, relative } from 'path';
 import sharp from 'sharp';
 import { PassThrough } from 'stream';
 import { promisify } from 'util';
@@ -297,6 +297,7 @@ export async function listDirectory(path: string[]) {
 
 export async function getFolderSize(path: string[]) {
   const fullPath = join(ROOT_DIR, ...path);
+
   const size = await promisify(fastFolderSize)(fullPath);
   return size || 0;
 }
@@ -329,8 +330,24 @@ export async function getStats(path: string[]) {
 
 // Check if file exists and can be accessed
 async function isValidPath(fullPath: string) {
+  if (!fullPathCheck(fullPath)) return false;
+
   return await fs
     .access(fullPath)
     .then(() => true)
     .catch(() => false);
+}
+
+function fullPathCheck(fullPath: string) {
+  // Normalize the path to remove any redundant segments
+  const normalizedPath = normalize(fullPath);
+
+  // Ensure the path is absolute
+  if (!isAbsolute(normalizedPath)) return false;
+
+  // Ensure the path is within the base directory
+  const relativePath = relative(ROOT_DIR, normalizedPath);
+  if (relativePath.startsWith('..') || isAbsolute(relativePath)) return false;
+
+  return true;
 }

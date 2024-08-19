@@ -210,7 +210,7 @@
     <button on:click={onSelectionClick} class="selectAction {checkModeShow ? 'selectActionShow' : ''} {checkMode}"
       >{checkedItems.length} Elemente {checkMode === 'download' ? 'herunterladen' : 'löschen'}</button
     >
-    <ul>
+    <ul style="grid-template-columns: repeat(auto-fill, {width}px);">
       {#each folders as folder}
         <FolderContentItem {path} name={folder} {width} {checkMode} isChecked={checkedItems.includes(folder)} {handleCheck}>
           <ImageLoader src="/img/svg/folder.svg" alt="folder" disableLoading={true} />
@@ -302,9 +302,10 @@
   }
 
   .content > ul {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 10px;
+    justify-content: space-evenly;
+    width: calc(100% - 10px);
   }
 
   .playButton {

@@ -159,24 +159,6 @@
 </div>
 
 <style>
-  .autoplay {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 15px;
-  }
-
-  .autoplay input {
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-  }
-
-  .autoplay label {
-    cursor: pointer;
-    font-size: 1.1rem;
-  }
-
   .container {
     display: flex;
     flex-direction: row;
@@ -184,8 +166,6 @@
     flex-basis: 0;
     align-items: center;
     justify-content: center;
-    height: calc(100vh - 75px - 40px - 30px);
-    min-height: 450px;
     gap: 15px;
     margin: 15px;
   }
@@ -200,8 +180,8 @@
   .audioContainer .frame {
     width: 100%;
     height: calc(30vh - 75px - 20px);
-    flex: auto;
-    min-height: auto;
+    background-color: transparent;
+    min-height: 75px;
     max-width: 750px;
   }
 
@@ -214,16 +194,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: black;
     flex: 5;
-    height: inherit;
-    min-height: inherit;
     border-radius: 15px;
+    align-self: center;
+    height: calc(100vh - 75px - 40px - 30px);
+    width: 100%;
   }
 
   .frame video,
   .frame img {
     aspect-ratio: attr(width) / attr(height);
     width: 100%;
+    height: 100%;
     border-radius: 15px;
     object-fit: contain;
   }
@@ -245,7 +228,7 @@
     background-color: #646464;
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 800px) or (max-height: 600px) {
     .container {
       flex-direction: column;
       flex-wrap: nowrap;
@@ -255,20 +238,20 @@
 
     .frame {
       width: 100%;
-      height: calc(80vh - 75px - 20px);
+      height: calc(90vh - 75px - 20px);
       flex: auto;
       min-height: auto;
     }
 
     .frame video,
     .frame img {
+      aspect-ratio: 16 / 9;
       max-width: 100%;
-      max-height: 100%;
     }
 
     .stats {
       width: calc(100% - 20px);
-      max-width: none;
+      max-width: 700px;
     }
   }
 
@@ -290,6 +273,24 @@
     padding: 1rem;
     background-color: #888;
     border-radius: 15px;
+  }
+
+  .autoplay {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 15px;
+  }
+
+  .autoplay input {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+  }
+
+  .autoplay label {
+    cursor: pointer;
+    font-size: 1.1rem;
   }
 
   .rename {
