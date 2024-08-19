@@ -6,7 +6,6 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ params }) => {
-  console.time('PageServerLoad');
   const path = getPath(params.path);
   if (!path) return error(400, 'Invalid path');
 
@@ -19,35 +18,44 @@ export const load = (async ({ params }) => {
   let size: Size = { currentSize: '', freeSize: '', freeSizePercentage: '' };
   let creationDate = '';
 
-  const dirPath = stats.isDirectory() ? path : path.slice(0, -1);
-  const content = await listDirectory(dirPath);
-  files = content
-    .filter((file) => file.isFile())
-    .map((file) => file.name)
-    .sort();
-  folders = content
-    .filter((file) => file.isDirectory())
-    .map((file) => file.name)
-    .sort();
-
   creationDate = stats.birthtime.toLocaleDateString(undefined, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
   });
 
-  if (stats.isDirectory()) {
-    const currentSize = await getFolderSize(path);
-    const freeSize = await getFreeSize();
+  const promises: Promise<void>[] = [];
 
-    size.currentSize = sizeToString(currentSize);
-    size.freeSize = sizeToString(freeSize);
-    size.freeSizePercentage = getFreeSizePercentage(freeSize);
-  } else if (stats.isFile()) {
-    const currentSize = await getFolderSize(path);
-    size.currentSize = sizeToString(currentSize);
+  const dirPath = stats.isDirectory() ? path : path.slice(0, -1);
+  promises.push(
+    listDirectory(dirPath).then((content) => {
+      files = content
+        .filter((file) => file.isFile())
+        .map((file) => file.name)
+        .sort();
+      folders = content
+        .filter((file) => file.isDirectory())
+        .map((file) => file.name)
+        .sort();
+    })
+  );
+
+  promises.push(
+    getFolderSize(path).then((currentSize) => {
+      size.currentSize = sizeToString(currentSize);
+    })
+  );
+
+  if (stats.isDirectory()) {
+    promises.push(
+      getFreeSize().then((freeSize) => {
+        size.freeSize = sizeToString(freeSize);
+        size.freeSizePercentage = getFreeSizePercentage(freeSize);
+      })
+    );
   }
 
-  console.timeEnd('PageServerLoad');
+  await Promise.all(promises);
+
   return { fileType, path, files, folders, size, creationDate };
 }) satisfies PageServerLoad;
