@@ -15,7 +15,7 @@ Erstellt mit Sveltekit. Eine Anwendung, die auf einem Raspberry Pi läuft und al
 
 ## Installation
   Eine `.env` Datei mit den Konfigurationsdaten muss im Root-Verzeichnis erstellt werden. Ein Beispiel dafür ist in der `.env.example` Datei zu finden.  
-  Ändere `ROOT_DIR` in der `.env` Datei auf den Pfad, in dem die Dateien gespeichert werden sollen.
+  Ändere `ROOT_DIR` in der `.env` Datei auf den Pfad, in dem die Dateien gespeichert werden sollen. Und ändere `AVAILABLE_SPACE_IN_GB` auf die verfügbare Speicherkapazität in GB (nicht bindend).
 
   Zudem muss [ffmpeg](https://www.ffmpeg.org/download.html) installiert sein, um Vorschaubilder für Videos zu erstellen. 
 

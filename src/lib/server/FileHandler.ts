@@ -1,6 +1,7 @@
-import { ROOT_DIR } from '$env/static/private';
+import { AVAILABLE_SPACE_IN_GB, ROOT_DIR } from '$env/static/private';
 import { isImage, isVideo } from '$lib/General';
 import archiver from 'archiver';
+import fastFolderSize from 'fast-folder-size';
 import ffmpeg from 'fluent-ffmpeg';
 import { createReadStream, createWriteStream } from 'fs';
 import fs from 'fs/promises';
@@ -8,6 +9,7 @@ import { getVideoDurationInSeconds } from 'get-video-duration';
 import { dirname, join } from 'path';
 import sharp from 'sharp';
 import { PassThrough } from 'stream';
+import { promisify } from 'util';
 import { BufferCache } from './BufferCache';
 
 // Check if ROOT_DIR is available
@@ -291,6 +293,24 @@ export async function listDirectory(path: string[]) {
     console.error(err);
     return [];
   }
+}
+
+export async function getFolderSize(path: string[]) {
+  const fullPath = join(ROOT_DIR, ...path);
+  const size = await promisify(fastFolderSize)(fullPath);
+  return size || 0;
+}
+
+export async function getFreeSize() {
+  const size = await promisify(fastFolderSize)(ROOT_DIR);
+  const availableSize = parseInt(AVAILABLE_SPACE_IN_GB) * 1024 ** 3;
+  return availableSize - (size || 0);
+}
+
+export function getFreeSizePercentage(freeSize: number) {
+  const availableSize = parseInt(AVAILABLE_SPACE_IN_GB) * 1024 ** 3;
+  const percentage = Math.round((freeSize / availableSize) * 100);
+  return `${percentage} %`;
 }
 
 export async function getStats(path: string[]) {

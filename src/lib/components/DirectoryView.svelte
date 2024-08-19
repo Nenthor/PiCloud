@@ -2,12 +2,14 @@
   import { navigating } from '$app/stores';
   import { isAudio, isImage, isPDF, isVideo, isZip } from '$lib/General.js';
   import { getPathStr } from '$lib/Path';
+  import type { Size } from '$lib/Types';
   import { onMount } from 'svelte';
   import DirectoryBar from './DirectoryBar.svelte';
   import FolderContentItem from './FolderContentItem.svelte';
   import ImageLoader from './ImageLoader.svelte';
 
   export let path: string[];
+  export let size: Size;
   export let folders: string[];
   export let files: string[];
 
@@ -203,7 +205,7 @@
 </script>
 
 <div class="container">
-  <DirectoryBar {path} {uploadFile} {changeZoomLevel} {onSelectingElements} />
+  <DirectoryBar {path} {size} {uploadFile} {changeZoomLevel} {onSelectingElements} />
   <div class="content" role="presentation" bind:this={contentDiv} on:drop|preventDefault={onDragDrop} on:dragenter={onDragEnter} on:dragleave={onDragLeave} on:dragover|preventDefault={() => {}}>
     <button on:click={onSelectionClick} class="selectAction {checkModeShow ? 'selectActionShow' : ''} {checkMode}"
       >{checkedItems.length} Elemente {checkMode === 'download' ? 'herunterladen' : 'löschen'}</button

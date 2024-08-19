@@ -1,9 +1,12 @@
+import { sizeToString } from '$lib/General';
 import { getPath } from '$lib/Path';
-import { getStats, listDirectory } from '$lib/server/FileHandler';
+import { getFolderSize, getFreeSize, getFreeSizePercentage, getStats, listDirectory } from '$lib/server/FileHandler';
+import type { Size } from '$lib/Types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ params }) => {
+  console.time('PageServerLoad');
   const path = getPath(params.path);
   if (!path) return error(400, 'Invalid path');
 
@@ -13,7 +16,7 @@ export const load = (async ({ params }) => {
   let fileType: 'file' | 'directory' = stats.isFile() ? 'file' : 'directory';
   let files: string[] = [];
   let folders: string[] = [];
-  let size = '';
+  let size: Size = { currentSize: '', freeSize: '', freeSizePercentage: '' };
   let creationDate = '';
 
   const dirPath = stats.isDirectory() ? path : path.slice(0, -1);
@@ -33,22 +36,18 @@ export const load = (async ({ params }) => {
     day: '2-digit'
   });
 
-  let sizeNum: number;
-  let unit: string;
-  if (stats.size < 1024) {
-    sizeNum = stats.size;
-    unit = 'B';
-  } else if (stats.size < 1024 ** 2) {
-    sizeNum = stats.size / 1024;
-    unit = 'KB';
-  } else if (stats.size < 1024 ** 3) {
-    sizeNum = stats.size / 1024 ** 2;
-    unit = 'MB';
-  } else {
-    sizeNum = stats.size / 1024 ** 3;
-    unit = 'GB';
-  }
-  size = sizeNum.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' + unit;
+  if (stats.isDirectory()) {
+    const currentSize = await getFolderSize(path);
+    const freeSize = await getFreeSize();
 
+    size.currentSize = sizeToString(currentSize);
+    size.freeSize = sizeToString(freeSize);
+    size.freeSizePercentage = getFreeSizePercentage(freeSize);
+  } else if (stats.isFile()) {
+    const currentSize = await getFolderSize(path);
+    size.currentSize = sizeToString(currentSize);
+  }
+
+  console.timeEnd('PageServerLoad');
   return { fileType, path, files, folders, size, creationDate };
 }) satisfies PageServerLoad;

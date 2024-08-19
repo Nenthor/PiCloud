@@ -50,3 +50,13 @@ export function isPDF(file: string) {
 export function isDefault(file: string) {
   return !isVideo(file) && !isImage(file) && !isAudio(file) && !isZip(file) && !isPDF(file);
 }
+
+export function sizeToString(size: number) {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let unit = 0;
+  while (size >= 1024) {
+    size /= 1024;
+    unit++;
+  }
+  return size.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ' + units[unit];
+}

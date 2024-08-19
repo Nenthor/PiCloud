@@ -21,9 +21,9 @@
 
 <main>
   {#if data.fileType === 'directory'}
-    <DirectoryView path={data.path} files={data.files} folders={data.folders} />
+    <DirectoryView path={data.path} size={data.size} files={data.files} folders={data.folders} />
   {:else if data.fileType === 'file'}
-    <FileView path={data.path} size={data.size} creationDate={data.creationDate} files={data.files} />
+    <FileView path={data.path} size={data.size.currentSize} creationDate={data.creationDate} files={data.files} />
   {/if}
 </main>
 

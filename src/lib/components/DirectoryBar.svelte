@@ -2,8 +2,10 @@
   import { invalidateAll } from '$app/navigation';
   import { clipName } from '$lib/General';
   import { getPathStr } from '$lib/Path';
+  import type { Size } from '$lib/Types';
 
   export let path: string[];
+  export let size: Size;
   export let uploadFile: (file: File) => void;
   export let changeZoomLevel: (isIncrease: boolean) => void;
   export let onSelectingElements: (type: 'delete' | 'download') => void;
@@ -55,7 +57,10 @@
   <div class="path">
     <h1>{clipName('/' + getPathStr(path), 50, true)}</h1>
   </div>
-
+  <div class="stats">
+    <p>Ordnergröße: {size.currentSize}</p>
+    <p>Noch Frei: {size.freeSize} ({size.freeSizePercentage})</p>
+  </div>
   <div class="actions">
     <button on:click={addFolder}>
       <img src="/img/svg/add-folder.svg" alt="Add folder" draggable="false" title="Ordner hinzufügen" />
@@ -106,6 +111,20 @@
     gap: 5px;
     flex-wrap: wrap;
     max-width: min(100%, 1000px);
+  }
+
+  .stats {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center !important;
+    gap: max(5px, 5vw);
+  }
+
+  .stats > p {
+    text-align: center;
+    color: #ddd;
+    overflow-wrap: anywhere;
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
   }
 
   .path > h1 {
