@@ -12,10 +12,10 @@
 
   const IMAGE_TIMEOUT = 5000; // 5 seconds
 
-  let filename = '';
+  let filename = path[path.length - 1];
   let newName = '';
   let setErrorMessage: (msg: string, success?: boolean) => void;
-  let isAutoplay: boolean;
+  let isAutoplay = isAudio(filename);
   let videoHtml: HTMLVideoElement;
   let imageAutoplayInterval: NodeJS.Timeout | null;
 
@@ -92,19 +92,20 @@
 
     // Reset autoplay interval
     if (!triggerdByAutoplay) {
-      isAutoplay = false;
       onAutoplayChange();
     }
   }
 
   function onEnded() {
-    if (isAutoplay) onNextFile('right');
+    if (isAutoplay) onNextFile('right', true);
   }
 
   function onAutoplayChange() {
     if (!isImage(filename)) return;
 
     if (isAutoplay) {
+      if (imageAutoplayInterval) clearInterval(imageAutoplayInterval);
+
       imageAutoplayInterval = setInterval(() => {
         onNextFile('right', true);
       }, IMAGE_TIMEOUT);
